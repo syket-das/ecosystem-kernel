@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+type AuthType {
+  address   String
+  label     String
+  publicKey String
+}
+
+model User {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  email        String?
+  name         String?
+  role         Role       @default(USER)
+  auth         AuthType
+  address      String     @unique
+  referralCode String     @unique @default(uuid()) // Unique referral code
+  referrals    Referral[] @relation("ReferralUser")
+  referredBy   Referral?  @relation("ReferralReferredUser")
+  createdAt    DateTime   @default(now())
+  points       Points?
+}
+
+model Referral {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  user           User     @relation("ReferralUser", fields: [userId], references: [id])
+  userId         String   @db.ObjectId
+  referredUser   User     @relation("ReferralReferredUser", fields: [referredUserId], references: [id])
+  referredUserId String   @unique @db.ObjectId
+  createdAt      DateTime @default(now())
+}
+
+model Points {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  points              Int
+  alltimePoints       Int
+  maxLifeline         Int      @default(100)
+  decreaseAmount      Int      @default(1)
+  increaseAmount      Int      @default(1)
+  regenInterval       Int      @default(1000)
+  verifiedForBossMode Boolean  @default(false)
+  verifiedForLudoMode Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  userId              String   @unique @db.ObjectId
+  user                User     @relation(fields: [userId], references: [id])
+}
