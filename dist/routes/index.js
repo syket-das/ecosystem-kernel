@@ -30,9 +30,11 @@ const express_1 = __importDefault(require("express"));
 const userController = __importStar(require("../controllers/userController"));
 const referralController = __importStar(require("../controllers/referralController"));
 const pointsController = __importStar(require("../controllers/pointsController"));
+const jwt_1 = require("../utils/jwt");
 const router = express_1.default.Router();
 // Users
 router.post('/v1/users', userController.LoginOrRegisterUser);
+router.get('/v1/users/profile', jwt_1.authenticateToken, userController.getProfile);
 // Referrals
 router.get('/v1/referrals', referralController.getAllReferrals);
 router.post('/v1/referrals', referralController.createReferral);

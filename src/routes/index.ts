@@ -2,11 +2,13 @@ import express from 'express';
 import * as userController from '../controllers/userController';
 import * as referralController from '../controllers/referralController';
 import * as pointsController from '../controllers/pointsController';
+import { authenticateToken } from '../utils/jwt';
 
 const router = express.Router();
 
 // Users
 router.post('/v1/users', userController.LoginOrRegisterUser);
+router.get('/v1/users/profile', authenticateToken, userController.getProfile);
 
 // Referrals
 

@@ -9,11 +9,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginOrRegisterUser = void 0;
+exports.getProfile = exports.LoginOrRegisterUser = void 0;
+// @ts-nocheck
 const models_1 = require("../models/models");
 const response_1 = require("../utils/response");
+const jwt_1 = require("../utils/jwt");
 const LoginOrRegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, authToken, address } = req.body;
+    if (!authToken || !address) {
+        (0, response_1.sendApiResponse)(res, 400, [], 'Bad Request', ['Missing required fields']);
+        return;
+    }
     try {
         let user = yield models_1.prisma.user.findUnique({
             where: {
@@ -22,48 +28,38 @@ const LoginOrRegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, func
             include: {
                 referredBy: true,
                 referrals: true,
-                points: true, // Including the Points relation
+                points: true,
             },
         });
+        let token;
         if (user) {
-            (0, response_1.sendApiResponse)(res, 200, user, 'User logged in successfully');
+            token = (0, jwt_1.createToken)(user.id);
+            yield models_1.prisma.session.upsert({
+                where: { userId: user.id },
+                update: { token },
+                create: { userId: user.id, token },
+            });
+            (0, response_1.sendApiResponse)(res, 200, { user, token }, 'User logged in successfully');
             return;
         }
-        // Create points entry for new user
-        const points = yield models_1.prisma.points.create({
-            data: {
-                userId: '', // Temporarily set to empty, will update after user creation
-                points: 0,
-                alltimePoints: 0,
-                maxLifeline: 100,
-                decreaseAmount: 1,
-                increaseAmount: 1,
-                regenInterval: 1000,
-                verifiedForBossMode: false,
-                verifiedForLudoMode: false,
-            },
-        });
         user = yield models_1.prisma.user.create({
             data: {
                 name,
                 email,
                 auth: authToken,
-                role: models_1.Role.USER,
                 address,
-                pointsId: points.id, // Set the pointsId in user creation
             },
             include: {
                 referredBy: true,
                 referrals: true,
-                points: true, // Including the Points relation
+                points: true,
             },
         });
-        // Update the userId in points table
-        yield models_1.prisma.points.update({
-            where: { id: points.id },
-            data: { userId: user.id },
+        token = (0, jwt_1.createToken)(user.id);
+        yield models_1.prisma.session.create({
+            data: { userId: user.id, token },
         });
-        (0, response_1.sendApiResponse)(res, 200, user, 'User created successfully');
+        (0, response_1.sendApiResponse)(res, 200, { user, token }, 'User created successfully');
     }
     catch (error) {
         console.error(error);
@@ -73,3 +69,34 @@ const LoginOrRegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.LoginOrRegisterUser = LoginOrRegisterUser;
+const getProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.payload;
+    if (!userId) {
+        (0, response_1.sendApiResponse)(res, 401, [], 'Unauthorized', ['Missing token']);
+        return;
+    }
+    try {
+        const user = yield models_1.prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            include: {
+                referredBy: true,
+                referrals: true,
+                points: true,
+            },
+        });
+        if (!user) {
+            (0, response_1.sendApiResponse)(res, 404, null, 'User not found');
+            return;
+        }
+        (0, response_1.sendApiResponse)(res, 200, user, 'User retrieved successfully');
+    }
+    catch (error) {
+        console.error(error);
+        (0, response_1.sendApiResponse)(res, 500, null, 'Internal Server Error', [
+            error.message || 'Unexpected error',
+        ]);
+    }
+});
+exports.getProfile = getProfile;

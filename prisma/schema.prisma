@@ -30,6 +30,7 @@ model User {
   referredBy   Referral?  @relation("ReferralReferredUser")
   createdAt    DateTime   @default(now())
   points       Points?
+  Session      Session?
 }
 
 model Referral {
@@ -54,4 +55,12 @@ model Points {
   createdAt           DateTime @default(now())
   userId              String   @unique @db.ObjectId
   user                User     @relation(fields: [userId], references: [id])
+}
+
+model Session {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @unique @db.ObjectId
+  token     String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
