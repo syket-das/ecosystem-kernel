@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import { sendApiResponse } from '../utils/response';
 import { AuthType, User } from '@prisma/client';
 import { createToken } from '../utils/jwt';
-
+import { nanoid } from 'nanoid';
 interface CreateUserRequest {
   email: User['email'];
   name: User['name'];
@@ -50,6 +50,7 @@ export const LoginOrRegisterUser = async (req: Request, res: Response) => {
         email,
         auth: authToken,
         address,
+        referralCode: nanoid(10),
       },
       include: {
         referredBy: true,

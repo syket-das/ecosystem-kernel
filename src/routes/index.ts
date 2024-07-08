@@ -13,7 +13,11 @@ router.get('/v1/users/profile', authenticateToken, userController.getProfile);
 // Referrals
 
 router.get('/v1/referrals', referralController.getAllReferrals);
-router.post('/v1/referrals', referralController.createReferral);
+router.post(
+  '/v1/referrals',
+  authenticateToken,
+  referralController.createReferral
+);
 
 // Points
 router.get('/v1/points/:userId', pointsController.getUserPoints);

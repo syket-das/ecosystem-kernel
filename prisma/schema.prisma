@@ -25,7 +25,7 @@ model User {
   role         Role       @default(USER)
   auth         AuthType
   address      String     @unique
-  referralCode String     @unique @default(uuid()) // Unique referral code
+  referralCode String     @unique
   referrals    Referral[] @relation("ReferralUser")
   referredBy   Referral?  @relation("ReferralReferredUser")
   createdAt    DateTime   @default(now())

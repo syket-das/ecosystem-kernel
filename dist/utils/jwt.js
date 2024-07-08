@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -22,7 +31,7 @@ const verifyToken = (token) => {
     }
 };
 exports.verifyToken = verifyToken;
-const authenticateToken = (req, res, next) => {
+const authenticateToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) {
@@ -31,9 +40,10 @@ const authenticateToken = (req, res, next) => {
     }
     try {
         const decoded = (0, exports.verifyToken)(token);
-        req.payload = decoded;
-        const sessionExist = yield models_1.prisma.session.findUnique({
-            where: { userId: decoded.userId },
+        const sessionExist = yield models_1.prisma.session.findFirst({
+            where: {
+                token: token,
+            },
         });
         if (!sessionExist) {
             (0, response_1.sendApiResponse)(res, 403, [], 'Forbidden', [
@@ -41,11 +51,12 @@ const authenticateToken = (req, res, next) => {
             ]);
             return;
         }
+        req.payload = decoded;
         next();
     }
     catch (error) {
         (0, response_1.sendApiResponse)(res, 403, [], 'Forbidden', ['Invalid token']);
         return;
     }
-};
+});
 exports.authenticateToken = authenticateToken;
