@@ -5,6 +5,7 @@ import { sendApiResponse } from '../utils/response';
 import { AuthType, User } from '@prisma/client';
 import { createToken } from '../utils/jwt';
 import { nanoid } from 'nanoid';
+import { logUserActivity } from '../utils/activityLogger';
 interface CreateUserRequest {
   email: User['email'];
   name: User['name'];
@@ -40,6 +41,7 @@ export const LoginOrRegisterUser = async (req: Request, res: Response) => {
         update: { token },
         create: { userId: user.id, token },
       });
+      await logUserActivity(user.id, 'Logged in');
       sendApiResponse(res, 200, { user, token }, 'User logged in successfully');
       return;
     }
@@ -60,10 +62,11 @@ export const LoginOrRegisterUser = async (req: Request, res: Response) => {
     });
 
     token = createToken(user.id);
+
     await prisma.session.create({
       data: { userId: user.id, token },
     });
-
+    await logUserActivity(user.id, 'Registered');
     sendApiResponse(res, 200, { user, token }, 'User created successfully');
   } catch (error: any) {
     console.error(error);
@@ -96,7 +99,7 @@ export const getProfile = async (req: Request, res: Response) => {
       sendApiResponse(res, 404, null, 'User not found');
       return;
     }
-
+    await logUserActivity(userId, 'Viewed profile');
     sendApiResponse(res, 200, user, 'User retrieved successfully');
   } catch (error: any) {
     console.error(error);

@@ -19,18 +19,27 @@ type AuthType {
 }
 
 model User {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
   email        String?
   name         String?
-  role         Role       @default(USER)
+  role         Role           @default(USER)
   auth         AuthType
-  address      String     @unique
-  referralCode String     @unique
-  referrals    Referral[] @relation("ReferralUser")
-  referredBy   Referral?  @relation("ReferralReferredUser")
-  createdAt    DateTime   @default(now())
+  address      String         @unique
+  referralCode String         @unique
+  referrals    Referral[]     @relation("ReferralUser")
+  referredBy   Referral?      @relation("ReferralReferredUser")
   points       Points?
   Session      Session?
+  activities   UserActivity[]
+  createdAt    DateTime       @default(now())
+}
+
+model UserActivity {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  activity  String
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Referral {

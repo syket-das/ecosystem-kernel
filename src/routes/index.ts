@@ -1,8 +1,9 @@
 import express from 'express';
+import { authenticateToken } from '../utils/jwt';
 import * as userController from '../controllers/userController';
 import * as referralController from '../controllers/referralController';
 import * as pointsController from '../controllers/pointsController';
-import { authenticateToken } from '../utils/jwt';
+import * as statsController from '../controllers/statsController';
 
 const router = express.Router();
 
@@ -22,5 +23,9 @@ router.post(
 // Points
 router.get('/v1/points/:userId', pointsController.getUserPoints);
 router.put('/v1/points', pointsController.updatePoints);
+
+// game stats
+
+router.get('/v1/stats', authenticateToken, statsController.getGameStats);
 
 export default router;

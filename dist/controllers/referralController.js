@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createReferral = exports.getAllReferrals = void 0;
+// @ts-nocheck
 const models_1 = require("../models/models");
 const response_1 = require("../utils/response");
 const getAllReferrals = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -26,20 +27,16 @@ const getAllReferrals = (req, res) => __awaiter(void 0, void 0, void 0, function
 });
 exports.getAllReferrals = getAllReferrals;
 const createReferral = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, referCode } = req.body;
+    const { userId } = req.payload;
+    const { referralCode } = req.body;
+    if (!referralCode) {
+        (0, response_1.sendApiResponse)(res, 400, null, 'Referral code is required');
+        return;
+    }
     try {
-        const user = yield models_1.prisma.user.findUnique({
-            where: {
-                id: userId,
-            },
-        });
-        if (!user) {
-            (0, response_1.sendApiResponse)(res, 404, null, 'User not found');
-            return;
-        }
         const referredBy = yield models_1.prisma.user.findUnique({
             where: {
-                referralCode: referCode,
+                referralCode: referralCode,
             },
         });
         if (!referredBy) {
@@ -49,7 +46,7 @@ const createReferral = (req, res) => __awaiter(void 0, void 0, void 0, function*
         const referral = yield models_1.prisma.referral.create({
             data: {
                 userId: referredBy.id,
-                referredUserId: user.id,
+                referredUserId: userId,
             },
         });
         (0, response_1.sendApiResponse)(res, 200, referral, 'Referral created successfully');

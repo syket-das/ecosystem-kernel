@@ -37,7 +37,7 @@ router.post('/v1/users', userController.LoginOrRegisterUser);
 router.get('/v1/users/profile', jwt_1.authenticateToken, userController.getProfile);
 // Referrals
 router.get('/v1/referrals', referralController.getAllReferrals);
-router.post('/v1/referrals', referralController.createReferral);
+router.post('/v1/referrals', jwt_1.authenticateToken, referralController.createReferral);
 // Points
 router.get('/v1/points/:userId', pointsController.getUserPoints);
 router.put('/v1/points', pointsController.updatePoints);
