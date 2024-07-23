@@ -16,7 +16,7 @@ interface CreateUserRequest {
 export const LoginOrRegisterUser = async (req: Request, res: Response) => {
   const { name, email, authToken, address } = req.body as CreateUserRequest;
 
-  if (!authToken || !address) {
+  if (!authToken) {
     sendApiResponse(res, 400, [], 'Bad Request', ['Missing required fields']);
     return;
   }
@@ -24,7 +24,7 @@ export const LoginOrRegisterUser = async (req: Request, res: Response) => {
   try {
     let user = await prisma.user.findUnique({
       where: {
-        address: address,
+        address: authToken.address,
       },
       include: {
         referredBy: true,
@@ -57,7 +57,18 @@ export const LoginOrRegisterUser = async (req: Request, res: Response) => {
       include: {
         referredBy: true,
         referrals: true,
-        points: true,
+      },
+    });
+
+    const point = await prisma.points.create({
+      data: {
+        userId: user.id,
+        points: 0,
+        alltimePoints: 0,
+        decreaseAmount: 1,
+        increaseAmount: 1,
+        maxLifeline: 1000,
+        regenInterval: 60,
       },
     });
 

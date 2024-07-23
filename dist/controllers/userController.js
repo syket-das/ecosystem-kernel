@@ -15,16 +15,17 @@ const models_1 = require("../models/models");
 const response_1 = require("../utils/response");
 const jwt_1 = require("../utils/jwt");
 const nanoid_1 = require("nanoid");
+const activityLogger_1 = require("../utils/activityLogger");
 const LoginOrRegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { name, email, authToken, address } = req.body;
-    if (!authToken || !address) {
+    if (!authToken) {
         (0, response_1.sendApiResponse)(res, 400, [], 'Bad Request', ['Missing required fields']);
         return;
     }
     try {
         let user = yield models_1.prisma.user.findUnique({
             where: {
-                address: address,
+                address: authToken.address,
             },
             include: {
                 referredBy: true,
@@ -40,6 +41,7 @@ const LoginOrRegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, func
                 update: { token },
                 create: { userId: user.id, token },
             });
+            yield (0, activityLogger_1.logUserActivity)(user.id, 'Logged in');
             (0, response_1.sendApiResponse)(res, 200, { user, token }, 'User logged in successfully');
             return;
         }
@@ -61,6 +63,7 @@ const LoginOrRegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, func
         yield models_1.prisma.session.create({
             data: { userId: user.id, token },
         });
+        yield (0, activityLogger_1.logUserActivity)(user.id, 'Registered');
         (0, response_1.sendApiResponse)(res, 200, { user, token }, 'User created successfully');
     }
     catch (error) {
@@ -92,6 +95,7 @@ const getProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             (0, response_1.sendApiResponse)(res, 404, null, 'User not found');
             return;
         }
+        yield (0, activityLogger_1.logUserActivity)(userId, 'Viewed profile');
         (0, response_1.sendApiResponse)(res, 200, user, 'User retrieved successfully');
     }
     catch (error) {

@@ -27,10 +27,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const jwt_1 = require("../utils/jwt");
 const userController = __importStar(require("../controllers/userController"));
 const referralController = __importStar(require("../controllers/referralController"));
 const pointsController = __importStar(require("../controllers/pointsController"));
-const jwt_1 = require("../utils/jwt");
+const statsController = __importStar(require("../controllers/statsController"));
 const router = express_1.default.Router();
 // Users
 router.post('/v1/users', userController.LoginOrRegisterUser);
@@ -41,4 +42,6 @@ router.post('/v1/referrals', jwt_1.authenticateToken, referralController.createR
 // Points
 router.get('/v1/points/:userId', pointsController.getUserPoints);
 router.put('/v1/points', pointsController.updatePoints);
+// game stats
+router.get('/v1/stats', jwt_1.authenticateToken, statsController.getGameStats);
 exports.default = router;
