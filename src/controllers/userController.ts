@@ -129,4 +129,23 @@ export const getProfile = async (req: Request, res: Response) => {
   }
 };
 
-// sd
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      include: {
+        points: true,
+      },
+    });
+
+    if (!users) {
+      sendApiResponse(res, 404, null, 'users not found');
+      return;
+    }
+    sendApiResponse(res, 200, users, 'users retrieved successfully');
+  } catch (error: any) {
+    console.error(error);
+    sendApiResponse(res, 500, null, 'Internal Server Error', [
+      error.message || 'Unexpected error',
+    ]);
+  }
+};
