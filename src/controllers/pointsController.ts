@@ -8,9 +8,10 @@ export async function getPoints(req: Request, res: Response) {
   sendApiResponse(res, 200, points, 'points retrieved successfully');
 }
 
-export async function increasePoints(req: Request, res: Response) {
+export async function increasePoints(req: any, res: Response) {
+  const { userId } = req.payload;
+
   const {
-    id,
     points,
     verifiedForBossMode,
     verifiedForLudoMode,
@@ -23,7 +24,7 @@ export async function increasePoints(req: Request, res: Response) {
   try {
     const userPoints = await prisma.points.findUnique({
       where: {
-        id,
+        userId,
       },
     });
 
@@ -34,7 +35,7 @@ export async function increasePoints(req: Request, res: Response) {
 
     const updatedPoints = await prisma.points.update({
       where: {
-        id,
+        id: userPoints.id,
       },
       data: {
         points,

@@ -22,7 +22,7 @@ router.post(
 
 // Points
 router.get('/v1/points/:userId', pointsController.getUserPoints);
-router.put('/v1/points', pointsController.increasePoints);
+router.put('/v1/points', authenticateToken, pointsController.increasePoints);
 
 // game stats
 
