@@ -41,7 +41,7 @@ router.get('/v1/referrals', referralController.getAllReferrals);
 router.post('/v1/referrals', jwt_1.authenticateToken, referralController.createReferral);
 // Points
 router.get('/v1/points/:userId', pointsController.getUserPoints);
-router.put('/v1/points', pointsController.updatePoints);
+router.put('/v1/points', pointsController.increasePoints);
 // game stats
 router.get('/v1/stats', jwt_1.authenticateToken, statsController.getGameStats);
 exports.default = router;

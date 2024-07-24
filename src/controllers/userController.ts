@@ -28,7 +28,15 @@ export const LoginOrRegisterUser = async (req: Request, res: Response) => {
       },
       include: {
         referredBy: true,
-        referrals: true,
+        referrals: {
+          include: {
+            referredUser: {
+              include: {
+                points: true,
+              },
+            },
+          },
+        },
         points: true,
       },
     });

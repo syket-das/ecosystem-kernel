@@ -8,7 +8,7 @@ export async function getPoints(req: Request, res: Response) {
   sendApiResponse(res, 200, points, 'points retrieved successfully');
 }
 
-export async function updatePoints(req: Request, res: Response) {
+export async function increasePoints(req: Request, res: Response) {
   const {
     id,
     points,
@@ -38,7 +38,7 @@ export async function updatePoints(req: Request, res: Response) {
       },
       data: {
         points,
-        alltimePoints: userPoints.alltimePoints + points,
+        alltimePoints: points,
       },
     });
     sendApiResponse(res, 200, updatedPoints, 'points updated successfully');

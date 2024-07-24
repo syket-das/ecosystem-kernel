@@ -56,7 +56,17 @@ const LoginOrRegisterUser = (req, res) => __awaiter(void 0, void 0, void 0, func
             include: {
                 referredBy: true,
                 referrals: true,
-                points: true,
+            },
+        });
+        const point = yield models_1.prisma.points.create({
+            data: {
+                userId: user.id,
+                points: 0,
+                alltimePoints: 0,
+                decreaseAmount: 1,
+                increaseAmount: 1,
+                maxLifeline: 1000,
+                regenInterval: 60,
             },
         });
         token = (0, jwt_1.createToken)(user.id);

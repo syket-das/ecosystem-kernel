@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPoints = getPoints;
-exports.updatePoints = updatePoints;
+exports.increasePoints = increasePoints;
 exports.getUserPoints = getUserPoints;
 const models_1 = require("../models/models");
 const response_1 = require("../utils/response");
@@ -20,7 +20,7 @@ function getPoints(req, res) {
         (0, response_1.sendApiResponse)(res, 200, points, 'points retrieved successfully');
     });
 }
-function updatePoints(req, res) {
+function increasePoints(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { id, points, verifiedForBossMode, verifiedForLudoMode, regenInterval, decreaseAmount, increaseAmount, maxLifeline, } = req.body;
         try {
@@ -39,7 +39,7 @@ function updatePoints(req, res) {
                 },
                 data: {
                     points,
-                    alltimePoints: userPoints.alltimePoints + points,
+                    alltimePoints: points,
                 },
             });
             (0, response_1.sendApiResponse)(res, 200, updatedPoints, 'points updated successfully');
