@@ -106,6 +106,11 @@ export const getProfile = async (req: Request, res: Response) => {
             referredUser: {
               include: {
                 points: true,
+                _count: {
+                  select: {
+                    referrals: true,
+                  },
+                },
               },
             },
           },
@@ -127,3 +132,5 @@ export const getProfile = async (req: Request, res: Response) => {
     ]);
   }
 };
+
+// sd
