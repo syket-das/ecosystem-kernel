@@ -137,6 +137,8 @@ export const getAllUsers = async (req: Request, res: Response) => {
       },
     });
 
+    console.log(users);
+
     if (!users) {
       sendApiResponse(res, 404, null, 'users not found');
       return;

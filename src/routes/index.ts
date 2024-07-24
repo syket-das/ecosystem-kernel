@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Users
 router.post('/v1/users', userController.LoginOrRegisterUser);
-router.get('/v1/users/all', authenticateToken, userController.getAllUsers);
+router.get('/v1/users/all', userController.getAllUsers);
 
 router.get('/v1/users/profile', authenticateToken, userController.getProfile);
 
